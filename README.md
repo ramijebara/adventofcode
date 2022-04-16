@@ -1,4 +1,4 @@
 # About this repo
 
-This year I decided to learn rust by doing advent of code puzzles. 
+This year I decided to learn Rust by doing Advent of Code puzzles. 
 
