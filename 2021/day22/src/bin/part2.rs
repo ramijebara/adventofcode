@@ -5,6 +5,9 @@ use std::{
 };
 
 fn main() {
+    const OFF: &str = "off";
+    const ON: &str = "on";
+
     let data_lines = if let Ok(file) = File::open("./src/bin/sample2.txt") {
         io::BufReader::new(file).lines()
     } else {
@@ -60,7 +63,7 @@ fn main() {
         }
     }
 
-    let mut on_cubiods: Vec<Cuboid> = Vec::new();
+    let mut compressed_operations: Vec<Cuboid> = Vec::new();
 
     // reverse to create a stack
     operations.reverse();
@@ -70,64 +73,113 @@ fn main() {
             break;
         }
 
-        // pop an operation frm the stack
-        let cur_op = operations.pop().unwrap();
+        // pop an operation from the stack
+        let cur = operations.pop().unwrap();
 
         // handle special case of first on operation
-        if on_cubiods.len() == 0 && cur_op.operation == "on".to_string() {
-            on_cubiods.push(cur_op);
+        if compressed_operations.len() == 0 {
+            if cur.operation == ON {
+                compressed_operations.push(cur);
+            }
             continue;
         }
 
         // intersect and process current operation with previous ones to
         // figure out which cubes to keep on
 
-        on_cubiods.reverse();
+        compressed_operations.reverse();
         let mut x_list: Vec<Cuboid> = Vec::new();
 
+        // remove all the pieces that intersect with current operation
         loop {
-            if on_cubiods.len() == 0 {
+            if compressed_operations.len() == 0 {
                 break;
             }
 
-            let prev_op = on_cubiods.pop().unwrap();
+            let prev = compressed_operations.pop().unwrap();
 
-            if prev_op.intersect(&cur_op) {
-                // need to split up previous op to remove overlap.
-
-                if prev_op.x_min > cur_op.x_min {
-                    println!("prev_op x_max");
-                    //new range start with x_max + 1
-                    // previous x_min..cur x_max
-                }
-
-                if prev_op.y_min > cur_op.y_min {
-                    println!("prev_op y_max");
-                }
-
-                if prev_op.z_min > cur_op.z_min {
-                    println!("prev_op z_max\n");
-                }
-            } else {
-                // prev_op is guaranteed to be on
-                // if it does not intersect with cur_op
-                // just add it back
-                x_list.push(prev_op);
+            // if there is no intersection push previous operation
+            // and continue
+            if !prev.intersect(&cur) {
+                x_list.push(prev);
+                continue;
             }
+
+            if prev.operation == OFF {
+                x_list.push(prev);
+                continue;
+            }
+
+            // if we are at this point then we build an "off" cuboid of
+            // the intersection to avoid double counting
+            let i_x_min = if prev.x_min >= cur.x_min {
+                prev.x_min
+            } else {
+                cur.x_min
+            };
+            let i_x_max = if prev.x_max <= cur.x_max {
+                prev.x_max
+            } else {
+                cur.x_max
+            };
+            let i_y_min = if prev.y_min >= cur.y_min {
+                prev.y_min
+            } else {
+                cur.y_min
+            };
+            let i_y_max = if prev.y_max <= cur.y_max {
+                prev.y_max
+            } else {
+                cur.y_max
+            };
+            let i_z_min = if prev.z_min >= cur.z_min {
+                prev.z_min
+            } else {
+                cur.z_min
+            };
+            let i_z_max = if prev.z_max <= cur.z_max {
+                prev.z_max
+            } else {
+                cur.z_max
+            };
+
+            let c = Cuboid::new(
+                OFF.to_string(),
+                i_x_min,
+                i_x_max,
+                i_y_min,
+                i_y_max,
+                i_z_min,
+                i_z_max,
+            );
+            x_list.push(prev);
+            x_list.push(c);
         }
 
-        if cur_op.operation == "on".to_string() {
-            x_list.push(cur_op);
+        // add current operation to to list if on
+        if cur.operation == ON {
+            x_list.push(cur);
         }
 
-        on_cubiods = x_list;
+        // reassign the list back to on_cubiods
+        compressed_operations = x_list;
     }
 
-    // print resultant on cubes
-    on_cubiods.iter().for_each(|c| println!("{c}"));
+    // print result
+    let mut result: isize = 0;
+    compressed_operations.iter().for_each(|c| {
+        if c.operation == ON {
+            result += c.num_of_cubes();
+        } else {
+            //result -= c.num_of_cubes();
+        }
+        println!("{c}");
+    });
+
+    println!("Result: {}", result);
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct Cuboid {
     operation: String,
     x_min: isize,
@@ -168,6 +220,11 @@ impl Cuboid {
             && c.x_min <= self.x_max
             && c.y_min <= self.y_max
             && c.z_min <= self.z_max
+    }
+
+    // calculate size
+    pub fn num_of_cubes(&self) -> isize {
+        ((self.x_max - self.x_min) * (self.y_max - self.y_min) * (self.z_max - self.z_min)).abs()
     }
 }
 
