@@ -1,4 +1,8 @@
-/* Theory: https://en.wikipedia.org/wiki/Inclusion%E2%80%93exclusion_principle */
+/*
+Theory: https://en.wikipedia.org/wiki/Inclusion%E2%80%93exclusion_principle
+Part of my solution was inspired by Jellycious's solution to this puzzle.
+Thanks!
+*/
 use std::{
     fmt,
     fs::File,
@@ -64,7 +68,7 @@ fn main() {
     }
 
     // (cuboid, add or subtract)
-    // add = true, subtract = false
+    // add = 1, subtract = -1
     let mut processed_instructions: Vec<(Cuboid, isize)> = Vec::new();
 
     for instruction in instructions {
