@@ -4,7 +4,7 @@ fn main() {
     let data_lines = if let Ok(file) = File::open("./src/bin/data.txt") {
         io::BufReader::new(file).lines()
     } else {
-        println!("Error reading line");
+        println!("Error reading data");
         return;
     };
 
