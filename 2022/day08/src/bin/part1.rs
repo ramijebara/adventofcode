@@ -47,8 +47,7 @@ fn main() {
             // edges
             if x == 0 || y == 0 || x == (width - 1) || y == (height - 1) {
                 visiable_trees.insert((y, x));
-            } 
-
+            }
             // others
             else {
                 let row_visible = visible(cur_value, x, &cur_row);
@@ -79,7 +78,7 @@ fn visible(value: u32, index: usize, row_or_column: &Vec<u32>) -> bool {
     }
 
     // side B
-    for i in index + 1 .. row_or_column.len() {
+    for i in index + 1..row_or_column.len() {
         if row_or_column[i] >= value {
             side_b_visible = false;
             break;

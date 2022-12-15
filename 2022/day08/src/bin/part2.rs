@@ -1,4 +1,4 @@
-use log::{error};
+use log::error;
 use std::{
     fs::File,
     io::{self, BufRead},
@@ -57,7 +57,6 @@ fn main() {
     println!("Result: {}", max_score);
 }
 
-
 fn score(value: u32, index: usize, row_or_column: &Vec<u32>) -> usize {
     let mut s_a = 0;
     let mut s_b = 0;
@@ -71,7 +70,7 @@ fn score(value: u32, index: usize, row_or_column: &Vec<u32>) -> usize {
     }
 
     // side B
-    for i in index + 1 .. row_or_column.len() {
+    for i in index + 1..row_or_column.len() {
         s_b += 1;
         if row_or_column[i] >= value {
             break;
