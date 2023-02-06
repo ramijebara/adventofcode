@@ -23,7 +23,6 @@ fn main() {
             for x in 1..data.len() {
                 sum = sum.add(data[x].clone());
                 sum = sum.reduce();
-
             }
 
             println!("sum: {}", sum);
@@ -85,16 +84,15 @@ impl SailfishNum {
         let mut s_right = 0;
 
         if let SailfishNumSide::Number(x) = self.left.deref() {
-            s_left += 3*x;
-
+            s_left += 3 * x;
         } else if let SailfishNumSide::Pair(y) = self.left.deref() {
-            s_left += 3*y.magnitude();
+            s_left += 3 * y.magnitude();
         }
 
         if let SailfishNumSide::Number(x) = self.right.deref() {
-            s_right += 2*x;
+            s_right += 2 * x;
         } else if let SailfishNumSide::Pair(y) = self.right.deref() {
-            s_right += 2*y.magnitude();
+            s_right += 2 * y.magnitude();
         }
 
         s_left + s_right
@@ -225,7 +223,7 @@ pub fn explode(flat_sfn: &mut Vec<u8>) -> Vec<u8> {
     if res.len() == 0 {
         return flat_sfn[0..flat_sfn.len()].to_vec();
     }
-    
+
     res
 }
 
@@ -234,17 +232,14 @@ pub fn split(flat_sfn: &mut Vec<u8>) -> Vec<u8> {
     let close: u8 = 93;
     let comma: u8 = 44;
 
-
     let mut res: Vec<u8> = Vec::new();
 
     for i in 0..flat_sfn.len() {
-
         // found a pair to explode
         if (flat_sfn[i] > 9) && not_special(flat_sfn[i]) {
-
             let n = flat_sfn[i] as f32;
-            let left = (n/2.0).floor() as u8;
-            let right = (n/2.0).ceil() as u8;
+            let left = (n / 2.0).floor() as u8;
+            let right = (n / 2.0).ceil() as u8;
 
             res.append(&mut flat_sfn[0..i].to_vec());
             res.push(open);
@@ -261,7 +256,7 @@ pub fn split(flat_sfn: &mut Vec<u8>) -> Vec<u8> {
     if res.len() == 0 {
         return flat_sfn[0..flat_sfn.len()].to_vec();
     }
-    
+
     res
 }
 
