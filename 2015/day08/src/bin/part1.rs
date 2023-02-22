@@ -60,7 +60,6 @@ fn main() -> Result<()> {
         info!("{} - Final line : {}", line_number, line);
 
         memory_length += line.chars().count();
-        //println!("Running result: {}", original_length - memory_length);
         line_number += 1;
     }
 

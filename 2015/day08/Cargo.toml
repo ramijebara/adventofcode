@@ -12,3 +12,6 @@ log = "0.4.17"
 
 [[bin]]
 name = "part1"
+
+[[bin]]
+name = "part2"
