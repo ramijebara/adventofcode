@@ -6,7 +6,7 @@ use std::io::{BufRead, BufReader};
 fn main() -> Result<()> {
     env_logger::init();
     let mut data = Vec::new();
-    let file = File::open("./src/bin/data.txt")?;
+    let file = File::open("./data/day1/data.txt")?;
     let mut data_lines = BufReader::new(file).lines();
 
     while let Some(Ok(data_line)) = data_lines.next() {

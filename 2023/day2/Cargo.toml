@@ -1,5 +1,5 @@
 [package]
-name = "day1"
+name = "day2"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,7 +11,7 @@ env_logger = "0.10.1"
 log = "0.4.20"
 
 [[bin]]
-name = "d1_part1"
+name = "d2_part1"
 
 [[bin]]
-name = "d1_part2"
+name = "d2_part2"
