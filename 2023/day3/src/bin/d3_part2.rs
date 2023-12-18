@@ -1,6 +1,6 @@
-use std::{fs::File, io::BufRead, io::BufReader, collections::HashMap};
 use color_eyre::eyre::Result;
-use log::{trace, info};
+use log::{info, trace};
+use std::{collections::HashMap, fs::File, io::BufRead, io::BufReader};
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -29,7 +29,7 @@ fn main() -> Result<()> {
                     if let Some(star_coords) = is_countable(coords, &data) {
                         if star_gears.contains_key(&star_coords) {
                             let v = star_gears.get_mut(&star_coords).unwrap();
-                            v.push(parsed_number); 
+                            v.push(parsed_number);
                         } else {
                             star_gears.insert(star_coords, [parsed_number].to_vec());
                         }
@@ -46,7 +46,7 @@ fn main() -> Result<()> {
             if let Some(star_coords) = is_countable(coords, &data) {
                 if star_gears.contains_key(&star_coords) {
                     let v = star_gears.get_mut(&star_coords).unwrap();
-                    v.push(parsed_number); 
+                    v.push(parsed_number);
                 } else {
                     star_gears.insert(star_coords, [parsed_number].to_vec());
                 }
@@ -54,9 +54,9 @@ fn main() -> Result<()> {
         }
     }
 
-    star_gears.iter().for_each(|(_, v)|{
+    star_gears.iter().for_each(|(_, v)| {
         if v.len() > 1 {
-            result += v.iter().fold(1, |p, x|{ p*x });
+            result += v.iter().fold(1, |p, x| p * x);
         }
     });
 
@@ -67,7 +67,7 @@ fn main() -> Result<()> {
 fn is_countable(coords: Vec<(usize, usize)>, data: &Vec<Vec<char>>) -> Option<(usize, usize)> {
     let row_max = data.len() - 1;
     let col_max = if row_max > 0 { data[0].len() - 1 } else { 0 };
-    
+
     for (row, col) in coords {
         if row > 0 && col > 0 && is_symbol(&data[row - 1][col - 1]) {
             return Some((row - 1, col - 1));
@@ -100,4 +100,4 @@ fn is_countable(coords: Vec<(usize, usize)>, data: &Vec<Vec<char>>) -> Option<(u
 
 fn is_symbol(c: &char) -> bool {
     c == &'*'
-} 
+}

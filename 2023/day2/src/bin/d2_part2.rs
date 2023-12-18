@@ -40,9 +40,15 @@ fn calculate_power(game_string: &str) -> u32 {
             let k = cube_number.next().unwrap();
 
             match k {
-                "red" => { red.push(v); }
-                "green" => { green.push(v); }
-                "blue" => { blue.push(v); }
+                "red" => {
+                    red.push(v);
+                }
+                "green" => {
+                    green.push(v);
+                }
+                "blue" => {
+                    blue.push(v);
+                }
                 _ => {
                     trace!("Unexpected input");
                 }
@@ -53,9 +59,21 @@ fn calculate_power(game_string: &str) -> u32 {
     trace!("red   {:?}", red);
     trace!("green {:?}", green);
     trace!("blue  {:?}", blue);
-    let red_min = if let Some(r) = red.into_iter().max() { r } else { 1 };
-    let green_min = if let Some(g) = green.into_iter().max() { g } else { 1 };
-    let blue_min = if let Some(b) = blue.into_iter().max() { b } else { 1 };
+    let red_min = if let Some(r) = red.into_iter().max() {
+        r
+    } else {
+        1
+    };
+    let green_min = if let Some(g) = green.into_iter().max() {
+        g
+    } else {
+        1
+    };
+    let blue_min = if let Some(b) = blue.into_iter().max() {
+        b
+    } else {
+        1
+    };
 
     red_min * green_min * blue_min
 }

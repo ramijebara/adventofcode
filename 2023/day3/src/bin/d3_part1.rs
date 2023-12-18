@@ -1,6 +1,6 @@
-use std::{fs::File, io::BufRead, io::BufReader};
 use color_eyre::eyre::Result;
-use log::{trace, info};
+use log::{info, trace};
+use std::{fs::File, io::BufRead, io::BufReader};
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -50,7 +50,7 @@ fn is_countable(coords: Vec<(usize, usize)>, data: &Vec<Vec<char>>) -> bool {
     let row_max = data.len() - 1;
     let col_max = if row_max > 0 { data[0].len() - 1 } else { 0 };
     let non_symbols: Vec<char> = ".0123456789".chars().collect::<Vec<char>>();
-    
+
     for (row, col) in coords {
         if row > 0 && col > 0 && is_symbol(&data[row - 1][col - 1], &non_symbols) {
             return true;
@@ -83,4 +83,4 @@ fn is_countable(coords: Vec<(usize, usize)>, data: &Vec<Vec<char>>) -> bool {
 
 fn is_symbol(c: &char, non_symbols: &Vec<char>) -> bool {
     !non_symbols.contains(c)
-} 
+}
