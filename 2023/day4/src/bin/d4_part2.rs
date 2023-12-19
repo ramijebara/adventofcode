@@ -4,7 +4,7 @@ use std::{fs::File, io::BufRead, io::BufReader};
 
 fn main() -> Result<()> {
     env_logger::init();
-    let file = File::open("./data/day4/sample_1.txt")?;
+    let file = File::open("./data/day4/data.txt")?;
     let mut data_lines = BufReader::new(file).lines();
     let mut data: Vec<(String, Vec<i32>, Vec<i32>)> = Vec::new();
 
@@ -40,21 +40,52 @@ fn main() -> Result<()> {
         data.push((card.to_string(), winning_numbers, game_numbers));
     }
 
-    let mut result = 0;
+    let mut cards: Vec<Vec<i32>> = Vec::new();
 
     data.into_iter().for_each(|(_, w, n)| {
-        let mut score = 0;
+        let c = Vec::from([get_matches(w, n)]);
+        cards.push(c);
+    });
 
-        w.iter().for_each(|x| {
-            if n.contains(x) {
-                score = if score == 0 { 1 } else { score * 2 };
+    trace!("{:?}", cards);
+
+    let mut i = 0;
+    loop {
+        if i == cards.len() {
+            break;
+        }
+
+        for _ in 0..cards[i].len() {
+            let start = i + 1;
+            let end = i + (cards[i][0] + 1) as usize;
+            for k in start..end {
+                let v = cards[k][0];
+                cards[k].push(v);
             }
-        });
+        }
 
-        result += score;
+        trace!("{:?}", cards);
+        i += 1;
+    }
+
+    let mut result = 0;
+
+    cards.iter().for_each(|x| {
+        result += x.len();
     });
 
     info!("result: {}", result);
-
     Ok(())
+}
+
+fn get_matches(winning_numbers: Vec<i32>, numbers: Vec<i32>) -> i32 {
+    let mut match_num = 0;
+
+    winning_numbers.iter().for_each(|x| {
+        if numbers.contains(x) {
+            match_num += 1;
+        }
+    });
+
+    match_num
 }
