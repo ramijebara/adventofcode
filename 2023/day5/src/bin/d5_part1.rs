@@ -1,7 +1,7 @@
 use std::{collections::HashMap, fs::File, io::BufRead, io::BufReader};
 
 use color_eyre::eyre::Result;
-use log::{trace, debug, info};
+use log::{debug, info, trace};
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -56,7 +56,9 @@ fn main() -> Result<()> {
         }
     }
 
-    data.iter().for_each(|(k, v)|{ debug!("{}: {:?}", k, v);});
+    data.iter().for_each(|(k, v)| {
+        debug!("{}: {:?}", k, v);
+    });
 
     if let Some(seed_to_soil) = data.get("seed-to-soil map") {
         seed_list.iter().for_each(|s| {
@@ -158,7 +160,10 @@ fn main() -> Result<()> {
     debug!("humidity list:    {:?}", humidity_list);
     debug!("location list:    {:?}", location_list);
 
-    info!("lowest location result: {}", location_list.iter().min().unwrap());
+    info!(
+        "lowest location result: {}",
+        location_list.iter().min().unwrap()
+    );
 
     Ok(())
 }
