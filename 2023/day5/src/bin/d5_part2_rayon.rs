@@ -1,6 +1,8 @@
 use color_eyre::eyre::Result;
 use log::{debug, info, trace};
 use std::{collections::HashMap, fs::File, io::BufRead, io::BufReader};
+use rayon::prelude::*;
+use std::sync::mpsc::{self, Sender, Receiver};
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -65,98 +67,101 @@ fn main() -> Result<()> {
         let mut humidity_list: Vec<usize> = Vec::new();
         let mut location_list: Vec<usize> = Vec::new();
 
-        if let Some(seed_to_soil) = data.get("seed-to-soil map") {
-            (seed_range.0..seed_range.1).into_iter().for_each(|s| {
-                let mapped_value = if let Some(value) = get_mapping(s, seed_to_soil) {
-                    value
-                } else {
-                    s
-                };
+        let (tx, rx): (Sender<usize>, Receiver<usize>) = mpsc::channel();
 
-                trace!("{} maps to {}", s, mapped_value);
-                soil_list.push(mapped_value)
+        if let Some(seed_to_soil) = data.get("seed-to-soil map") {
+            (seed_range.0..seed_range.1).into_par_iter().for_each_with(tx, |tx, s| {
+                if let Some(value) = get_mapping(s, seed_to_soil) {
+                    tx.send(value).unwrap();
+                } else {
+                    tx.send(s).unwrap();
+                };
             });
+
+            soil_list = rx.into_iter().collect();
         }
+
+        let (tx, rx): (Sender<usize>, Receiver<usize>) = mpsc::channel();
 
         if let Some(soil_to_fertilizer) = data.get("soil-to-fertilizer map") {
-            soil_list.into_iter().for_each(|s| {
-                let mapped_value = if let Some(value) = get_mapping(s, soil_to_fertilizer) {
-                    value
+            soil_list.into_par_iter().for_each_with(tx, |tx, s| {
+                if let Some(value) = get_mapping(s, soil_to_fertilizer) {
+                    tx.send(value).unwrap();
                 } else {
-                    s
+                    tx.send(s).unwrap();
                 };
-
-                trace!("{} maps to {}", s, mapped_value);
-                fertilizer_list.push(mapped_value)
             });
+
+            fertilizer_list = rx.into_iter().collect();
         }
+
+        let (tx, rx): (Sender<usize>, Receiver<usize>) = mpsc::channel();
 
         if let Some(fertilizer_to_water) = data.get("fertilizer-to-water map") {
-            fertilizer_list.into_iter().for_each(|s| {
-                let mapped_value = if let Some(value) = get_mapping(s, fertilizer_to_water) {
-                    value
+            fertilizer_list.into_par_iter().for_each_with(tx, |tx, s| {
+                if let Some(value) = get_mapping(s, fertilizer_to_water) {
+                    tx.send(value).unwrap();
                 } else {
-                    s
+                    tx.send(s).unwrap();
                 };
-
-                trace!("{} maps to {}", s, mapped_value);
-                water_list.push(mapped_value)
             });
+
+            water_list = rx.into_iter().collect();
         }
 
+        let (tx, rx): (Sender<usize>, Receiver<usize>) = mpsc::channel();
         if let Some(water_to_light) = data.get("water-to-light map") {
-            water_list.into_iter().for_each(|s| {
-                let mapped_value = if let Some(value) = get_mapping(s, water_to_light) {
-                    value
+            water_list.into_par_iter().for_each_with(tx, |tx, s| {
+                if let Some(value) = get_mapping(s, water_to_light) {
+                    tx.send(value).unwrap();
                 } else {
-                    s
+                    tx.send(s).unwrap();
                 };
-
-                trace!("{} maps to {}", s, mapped_value);
-                light_list.push(mapped_value)
             });
+            
+            light_list = rx.into_iter().collect();
         }
 
+        let (tx, rx): (Sender<usize>, Receiver<usize>) = mpsc::channel();
         if let Some(light_to_temperature) = data.get("light-to-temperature map") {
-            light_list.into_iter().for_each(|s| {
-                let mapped_value = if let Some(value) = get_mapping(s, light_to_temperature) {
-                    value
+            light_list.into_par_iter().for_each_with(tx, |tx, s| {
+                if let Some(value) = get_mapping(s, light_to_temperature) {
+                    tx.send(value).unwrap();
                 } else {
-                    s
+                    tx.send(s).unwrap();
                 };
-
-                trace!("{} maps to {}", s, mapped_value);
-                temperature_list.push(mapped_value)
             });
+
+            temperature_list = rx.into_iter().collect();
         }
 
+        let (tx, rx): (Sender<usize>, Receiver<usize>) = mpsc::channel();
         if let Some(temperature_to_humidity) = data.get("temperature-to-humidity map") {
-            temperature_list.into_iter().for_each(|s| {
-                let mapped_value = if let Some(value) = get_mapping(s, temperature_to_humidity) {
-                    value
+            temperature_list.into_par_iter().for_each_with(tx, |tx, s| {
+                if let Some(value) = get_mapping(s, temperature_to_humidity) {
+                    tx.send(value).unwrap();
                 } else {
-                    s
+                    tx.send(s).unwrap();
                 };
-
-                trace!("{} maps to {}", s, mapped_value);
-                humidity_list.push(mapped_value)
             });
+
+            humidity_list = rx.into_iter().collect();
         }
 
+        let (tx, rx): (Sender<usize>, Receiver<usize>) = mpsc::channel();
         if let Some(humidity_to_location) = data.get("humidity-to-location map") {
-            humidity_list.into_iter().for_each(|s| {
-                let mapped_value = if let Some(value) = get_mapping(s, humidity_to_location) {
-                    value
+            humidity_list.into_par_iter().for_each_with(tx, |tx, s| {
+                if let Some(value) = get_mapping(s, humidity_to_location) {
+                    tx.send(value).unwrap();
                 } else {
-                    s
+                    tx.send(s).unwrap();
                 };
-
-                trace!("{} maps to {}", s, mapped_value);
-                location_list.push(mapped_value)
             });
+
+            location_list = rx.into_iter().collect();
         }
 
-        lowest_locations.push(*location_list.iter().min().unwrap());
+        lowest_locations.push(*location_list.par_iter().min().unwrap());
         debug!("lowest locations: {:?}", lowest_locations);
     }
 
