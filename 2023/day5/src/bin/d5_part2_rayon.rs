@@ -1,8 +1,8 @@
 use color_eyre::eyre::Result;
 use log::{debug, info, trace};
-use std::{collections::HashMap, fs::File, io::BufRead, io::BufReader};
 use rayon::prelude::*;
-use std::sync::mpsc::{self, Sender, Receiver};
+use std::sync::mpsc::{self, Receiver, Sender};
+use std::{collections::HashMap, fs::File, io::BufRead, io::BufReader};
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -70,13 +70,15 @@ fn main() -> Result<()> {
         let (tx, rx): (Sender<usize>, Receiver<usize>) = mpsc::channel();
 
         if let Some(seed_to_soil) = data.get("seed-to-soil map") {
-            (seed_range.0..seed_range.1).into_par_iter().for_each_with(tx, |tx, s| {
-                if let Some(value) = get_mapping(s, seed_to_soil) {
-                    tx.send(value).unwrap();
-                } else {
-                    tx.send(s).unwrap();
-                };
-            });
+            (seed_range.0..seed_range.1)
+                .into_par_iter()
+                .for_each_with(tx, |tx, s| {
+                    if let Some(value) = get_mapping(s, seed_to_soil) {
+                        tx.send(value).unwrap();
+                    } else {
+                        tx.send(s).unwrap();
+                    };
+                });
 
             soil_list = rx.into_iter().collect();
         }
@@ -118,7 +120,7 @@ fn main() -> Result<()> {
                     tx.send(s).unwrap();
                 };
             });
-            
+
             light_list = rx.into_iter().collect();
         }
 
