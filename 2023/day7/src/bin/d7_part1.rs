@@ -1,6 +1,6 @@
 use color_eyre::eyre::Result;
 use log::{debug, info, trace};
-use std::{collections::HashMap, fs::File, io::BufRead, io::BufReader, cmp::Ordering};
+use std::{cmp::Ordering, collections::HashMap, fs::File, io::BufRead, io::BufReader};
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -14,7 +14,10 @@ fn main() -> Result<()> {
 
         let card_list_chars: Vec<char> = data_strs[0].chars().collect();
         let card_hist = card_hist(card_list_chars.clone());
-        let card_list: Vec<usize> = card_list_chars.into_iter().map(|c|{ get_card_value(c) }).collect::<Vec<usize>>();
+        let card_list: Vec<usize> = card_list_chars
+            .into_iter()
+            .map(|c| get_card_value(c))
+            .collect::<Vec<usize>>();
         let bid = data_strs[1].parse::<usize>().unwrap();
 
         let hand = Hand {
@@ -46,7 +49,10 @@ fn main() -> Result<()> {
 
     data.into_iter().enumerate().for_each(|(i, h)| {
         let rank = i + 1;
-        debug!("cards: {:?}, type: {}, map: {:?}, bid: {}, rank: {}", h.card_hist, h.game_type, h.card_list, h.bid, rank);
+        debug!(
+            "cards: {:?}, type: {}, map: {:?}, bid: {}, rank: {}",
+            h.card_hist, h.game_type, h.card_list, h.bid, rank
+        );
         result += h.bid * rank;
     });
 
@@ -153,6 +159,8 @@ fn get_card_value(card: char) -> usize {
         '4' => 4,
         '3' => 3,
         '2' => 2,
-        _ => { panic!("invalid input") },
+        _ => {
+            panic!("invalid input")
+        }
     }
 }
