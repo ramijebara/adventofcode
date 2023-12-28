@@ -1,6 +1,6 @@
 use color_eyre::eyre::Result;
 use log::{debug, info, trace};
-use std::{collections::HashMap, fs::File, io::BufRead, io::BufReader};
+use std::{collections::HashMap, fs::File, io::BufRead, io::BufReader, cmp::Ordering};
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -12,14 +12,14 @@ fn main() -> Result<()> {
         trace!("{}", data_line);
         let data_strs: Vec<&str> = data_line.splitn(2, " ").collect::<Vec<&str>>();
 
-        let card_list: Vec<char> = data_strs[0].chars().collect();
-        let cards = card_hist(card_list.clone());
-        let game: Vec<usize> = card_list.into_iter().map(|c|{ get_card_value(c) }).collect::<Vec<usize>>();
+        let card_list_chars: Vec<char> = data_strs[0].chars().collect();
+        let card_hist = card_hist(card_list_chars.clone());
+        let card_list: Vec<usize> = card_list_chars.into_iter().map(|c|{ get_card_value(c) }).collect::<Vec<usize>>();
         let bid = data_strs[1].parse::<usize>().unwrap();
 
         let hand = Hand {
-            game,
-            card_hist: cards,
+            card_list,
+            card_hist,
             bid,
             ..Default::default()
         };
@@ -28,26 +28,25 @@ fn main() -> Result<()> {
     }
 
     data.iter_mut().for_each(|hand| {
-        let score = calculate_score(hand);
-        hand.score = score;
+        hand.game_type = get_game_type(&hand.card_hist);
 
         trace!(
-            "cards: {:?}, bid: {}, map: {:?}, score: {}",
+            "cards: {:?}, bid: {}, map: {:?}, type: {}",
             hand.card_hist,
             hand.bid,
-            hand.game,
-            hand.score
+            hand.card_list,
+            hand.game_type
         );
     });
 
-    data.sort_by_key(|h| (h.score, h.game.clone()) );
+    data.sort();
     trace!("{:#?}", data);
 
     let mut result = 0;
 
     data.into_iter().enumerate().for_each(|(i, h)| {
         let rank = i + 1;
-        debug!("cards: {:?}, score: {}, map: {:?}, bid: {}, rank: {}", h.card_hist, h.score, h.game, h.bid, rank);
+        debug!("cards: {:?}, type: {}, map: {:?}, bid: {}, rank: {}", h.card_hist, h.game_type, h.card_list, h.bid, rank);
         result += h.bid * rank;
     });
 
@@ -56,15 +55,52 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Eq)]
 struct Hand {
-    game: Vec<usize>,
+    card_list: Vec<usize>,
     bid: usize,
-    card_hist: HashMap<char, usize>,
-    score: usize,
+    card_hist: Vec<usize>,
+    game_type: usize,
 }
 
-fn card_hist(card_list: Vec<char>) -> HashMap<char, usize> {
+impl PartialEq<Self> for Hand {
+    fn eq(&self, other: &Self) -> bool {
+        if self.game_type == other.game_type {
+            for (a, b) in self.card_list.iter().zip(other.card_list.iter()) {
+                if a != b {
+                    return false;
+                }
+                return true;
+            }
+        }
+        false
+    }
+}
+
+impl PartialOrd for Hand {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Hand {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.game_type.cmp(&other.game_type) {
+            Ordering::Less => Ordering::Less,
+            Ordering::Greater => Ordering::Greater,
+            Ordering::Equal => {
+                for (a, b) in self.card_list.iter().zip(other.card_list.iter()) {
+                    if a != b {
+                        return a.cmp(&b);
+                    }
+                }
+                Ordering::Equal
+            }
+        }
+    }
+}
+
+fn card_hist(card_list: Vec<char>) -> Vec<usize> {
     let mut cards: HashMap<char, usize> = HashMap::new();
 
     card_list.iter().for_each(|c| {
@@ -75,40 +111,30 @@ fn card_hist(card_list: Vec<char>) -> HashMap<char, usize> {
         }
     });
 
-    cards
+    let mut hist = cards.values().cloned().collect::<Vec<usize>>();
+
+    hist.sort();
+
+    hist
 }
 
-fn calculate_score(hand: &Hand) -> usize {
-    let mut card_counts = Vec::new();
-
-    hand.card_hist.iter().for_each(|(_, v)| {
-        card_counts.push(*v);
-    });
-
-    card_counts.sort();
-
-    trace!("{:?}", card_counts);
-
-    get_boost(&card_counts)
-}
-
-fn get_boost(card_counts: &Vec<usize>) -> usize {
+fn get_game_type(card_counts: &Vec<usize>) -> usize {
     if card_counts == &vec![5] {
-        1000000
+        7
     } else if card_counts == &vec![1, 4] {
-        100000
+        6
     } else if card_counts == &vec![2, 3] {
-        10000
+        5
     } else if card_counts == &vec![1, 1, 3] {
-        1000
+        4
     } else if card_counts == &vec![1, 2, 2] {
-        100
+        3
     } else if card_counts == &vec![1, 1, 1, 2] {
-        10
+        2
     } else if card_counts == &vec![1, 1, 1, 1, 1] {
         1
     } else {
-        0
+        panic!("invalid game type");
     }
 }
 
