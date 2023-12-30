@@ -78,7 +78,11 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn walk_path(start: &String, data: &HashMap<String, [String; 2]>, instructions: &Vec<usize>) -> usize {
+fn walk_path(
+    start: &String,
+    data: &HashMap<String, [String; 2]>,
+    instructions: &Vec<usize>,
+) -> usize {
     let mut result = 0;
     let mut key = start.to_string();
     let mut i = 0;
@@ -101,28 +105,29 @@ fn walk_path(start: &String, data: &HashMap<String, [String; 2]>, instructions: 
     result
 }
 
-// find Greatest Common Divisor (GCD) then Find 
+// find Greatest Common Divisor (GCD) then Find
 // Least Common Multiple using Euclidean method
 // ref: https://rustp.org/number-theory/lcm/
 
 // Find GCD
-fn gcd(mut a:usize, mut b:usize) -> usize{
-    if a==b { return a; }
+fn gcd(mut a: usize, mut b: usize) -> usize {
+    if a == b {
+        return a;
+    }
     if b > a {
         let temp = a;
         a = b;
         b = temp;
     }
-    while b>0 {
+    while b > 0 {
         let temp = a;
         a = b;
-        b = temp%b;
+        b = temp % b;
     }
     return a;
 }
 
-fn lcm(a:usize, b:usize) -> usize{
+fn lcm(a: usize, b: usize) -> usize {
     // LCM = a*b / gcd
-    return a * (b/gcd(a,b));
+    return a * (b / gcd(a, b));
 }
-

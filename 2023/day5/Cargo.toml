@@ -10,9 +10,3 @@ color-eyre = "0.6.2"
 env_logger = "0.10.1"
 log = "0.4.20"
 rayon = "1.8.0"
-
-[[bin]]
-name = "d5_part1"
-
-[[bin]]
-name = "d5_part2"
